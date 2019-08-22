@@ -9,6 +9,16 @@ import router from '@/router/router.js'
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 
+// 添加导航守卫
+router.beforeEach((to, from, next) => {
+  let mytoken=localStorage.getItem('myvue_xm')
+  if(mytoken||to.path=='/login'){
+    next();
+  }else{
+    next({path:'/login'})
+  }
+})
+
 new Vue({
   router,
   render: h => h(App)

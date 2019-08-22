@@ -14,28 +14,59 @@
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
-        <el-button type="primary" class="login-btn">登录</el-button>
+        <el-button type="primary" class="login-btn" @click="login">登录</el-button>
       </el-form>
     </div>
   </div>
 </template>
 <script>
+import { login } from "@/api/login_index.js";
 export default {
-  data () {
+  data() {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: "",
+        password: ""
       },
       rules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
+          { required: true, message: "请输入用户名", trigger: "blur" }
         ],
-        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
       }
+    };
+  },
+  methods: {
+    login() {
+      // 实现二次验证
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          // console.log("可以发请求");
+          login(this.loginForm).then(res => {
+            console.log(res);
+            if (res.data.meta.status === 200) {
+              // 把token存储到本地
+              localStorage.setItem('myvue_xm',res.data.data.token)
+              this.$router.push({name:'index'})
+            } else {
+              this.$message({
+                message:res.data.meta.msg,
+                type: "warning"
+              });
+            }
+          });
+        } else {
+          // console.log("用户输入数据错误");
+          this.$message({
+            message: "请输入必填数据",
+            type: "warning"
+          });
+          return false;
+        }
+      });
     }
   }
-}
+};
 </script>
 <style lang="less" scoped>
 .login {
