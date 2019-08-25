@@ -20,53 +20,53 @@
   </div>
 </template>
 <script>
-import { login } from "@/api/login_index.js";
+import { login } from '@/api/login_index.js';
 export default {
-  data() {
+  data () {
     return {
       loginForm: {
-        username: "",
-        password: ""
+        username: '',
+        password: ''
       },
       rules: {
         username: [
-          { required: true, message: "请输入用户名", trigger: "blur" }
+          { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       }
-    };
+    }
   },
   methods: {
-    login() {
+    login () {
       // 实现二次验证
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           // console.log("可以发请求");
           login(this.loginForm).then(res => {
-            console.log(res);
+            console.log(res)
             if (res.data.meta.status === 200) {
               // 把token存储到本地
-              localStorage.setItem('myvue_xm',res.data.data.token)
-              this.$router.push({name:'index'})
+              localStorage.setItem('myvue_xm', res.data.data.token)
+              this.$router.push({ name: 'index' })
             } else {
               this.$message({
-                message:res.data.meta.msg,
-                type: "warning"
-              });
+                message: res.data.meta.msg,
+                type: 'warning'
+              })
             }
-          });
+          })
         } else {
           // console.log("用户输入数据错误");
           this.$message({
-            message: "请输入必填数据",
-            type: "warning"
-          });
-          return false;
+            message: '请输入必填数据',
+            type: 'warning'
+          })
+          return false
         }
-      });
+      })
     }
   }
-};
+}
 </script>
 <style lang="less" scoped>
 .login {

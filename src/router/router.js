@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 
 import Login from '@/views/login.vue'
 import Index from '@/views/index.vue'
+import Welcome from '@/views/welcome.vue'
+import Users from '@/users/users-list.vue'
 Vue.use(VueRouter)
 
 export default new VueRouter({
@@ -20,6 +22,17 @@ export default new VueRouter({
     {
       name: 'index',
       path: '/index',
-      component: Index
+      component: Index,
+      redirect: { name: 'welcome' },
+      children: [{
+        name: 'welcome',
+        path: 'welcome',
+        component: Welcome
+      },
+      {
+        name: 'users-list',
+        path: 'users-list',
+        component: Users
+      }]
     }]
 })
