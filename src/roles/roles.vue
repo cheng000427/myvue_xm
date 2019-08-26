@@ -20,12 +20,20 @@
             style="margin-bottom:10px;border-bottom:1px dashed #ccc"
           >
             <el-col :span="4">
-              <el-tag @close="delRight(scope.row,first.id)" closable :type="'success'">{{first.authName}}</el-tag>
+              <el-tag
+                @close="delRight(scope.row,first.id)"
+                closable
+                :type="'success'"
+              >{{first.authName}}</el-tag>
             </el-col>
             <el-col :span="20">
               <el-row v-for="second in first.children" :key="second.id" style="margin-bottom:10px">
                 <el-col :span="4">
-                  <el-tag @close="delRight(scope.row,second.id)" closable :type="'waining'">{{second.authName}}</el-tag>
+                  <el-tag
+                    @close="delRight(scope.row,second.id)"
+                    closable
+                    :type="'waining'"
+                  >{{second.authName}}</el-tag>
                 </el-col>
                 <el-col :span="20">
                   <el-tag
@@ -39,6 +47,9 @@
                 </el-col>
               </el-row>
             </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="24" v-show="scope.row.children.length === 0">还没有任何的权限，先分配！！</el-col>
           </el-row>
         </template>
       </el-table-column>
@@ -54,7 +65,7 @@
           </el-tooltip>
           <!-- 分配 -->
           <el-tooltip class="item" effect="dark" content="分配" placement="top-start">
-            <el-button type="warning" plain icon="el-icon-share"></el-button>
+            <el-button type="warning" @click="eaitDefaultProps" plain icon="el-icon-share"></el-button>
           </el-tooltip>
           <!-- 删除 -->
           <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
@@ -63,14 +74,33 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 树形结构 -->
+    <el-dialog title="角色授权" :visible.sync="treeDialogFormVisible">
+      <el-tree
+        :data="roleList"
+        show-checkbox
+        node-key="id"
+        :default-expand-all="true"
+        :props="defaultProps"
+      ></el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="treeDialogFormVisible = false">取 消</el-button>
+        <el-button type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { getRoles } from '@/api/user_index.js'
-import { delRightByRoleId } from '@/api/role_index.js'
+import { getRoles } from '@/api/user_index.js';
+import { delRightByRoleId, defaultProps } from '@/api/role_index.js';
 export default {
   data () {
     return {
+      defaultProps: {
+        label: 'authName',
+        children: 'children'
+      },
+      treeDialogFormVisible: false,
       roleList: []
     }
   },
@@ -81,6 +111,20 @@ export default {
         .then(res => {
           console.log(res)
           row.children = res.data.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    eaitDefaultProps () {
+      defaultProps('tree')
+        .then(res => {
+          console.log(res)
+          if (res.data.meta.status === 200) {
+            this.treeDialogFormVisible = true
+            this.roleList = res.data.data
+            console.log(this.roleList)
+          }
         })
         .catch(err => {
           console.log(err)

@@ -14,3 +14,10 @@ export const delRightByRoleId = (roleId, rightId) => {
     method: 'delete'
   })
 }
+
+// 所有权限列表
+export const defaultProps = (type) => {
+  return axios({
+    url: `rights/${type}`
+  })
+}
