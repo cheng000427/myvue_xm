@@ -20,13 +20,13 @@
   </div>
 </template>
 <script>
-import { login } from '@/api/login_index.js';
+import { login } from '@/api/login_index.js'
 export default {
   data () {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       rules: {
         username: [

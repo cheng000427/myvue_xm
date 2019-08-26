@@ -10,26 +10,30 @@
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b"
+          unique-opened='true'
           @open="handleOpen"
           @close="handleClose"
         >
           <el-submenu index="1">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>导航一</span>
+              <span>用户管理</span>
             </template>
             <el-menu-item index="/index/users-list">
-              <i class="el-icon-menu"></i>选项1
+              <i class="el-icon-menu"></i>用户列表
             </el-menu-item>
           </el-submenu>
 
           <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>导航二</span>
+              <span>权限管理</span>
             </template>
-            <el-menu-item index="2-1">
-              <i class="el-icon-menu"></i>选项2
+            <el-menu-item index="/index/roles">
+              <i class="el-icon-menu"></i>角色列表
+            </el-menu-item>
+            <el-menu-item index="/index/right">
+              <i class="el-icon-menu"></i>权限列表
             </el-menu-item>
           </el-submenu>
 
@@ -42,6 +46,7 @@
               <i class="el-icon-menu"></i>选项3
             </el-menu-item>
           </el-submenu>
+
         </el-menu>
       </el-aside>
       <el-container>
