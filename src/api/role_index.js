@@ -29,3 +29,19 @@ export const ganrtRolesById = (roleId, rids) => {
     data: { rids }
   })
 }
+
+// 新增角色
+export const addRolesBy = (data) => {
+  return axios({
+    url: `roles`,
+    method: 'post',
+    data
+  })
+}
+// 删除角色
+export const delRoles = (id) => {
+  return axios({
+    url: `roles/${id}`,
+    method: 'delete'
+  })
+}

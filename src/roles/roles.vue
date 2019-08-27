@@ -7,7 +7,7 @@
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 添加角色按钮 -->
-    <el-button type="success">添加角色</el-button>
+    <el-button type="success" @click="addRoles">添加角色</el-button>
     <!-- 表格 -->
     <el-table :data="roleList" border style="width: 100%;margin-top:15px">
       <!-- 箭头 -->
@@ -95,6 +95,21 @@
         <el-button type="primary" @click="grantRoles">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 添加角色dialog -->
+    <el-dialog title="添加角色" :visible.sync="addDialogFormVisible">
+      <el-form :model="addForm">
+        <el-form-item label="角色名称"  :label-width="'120px'">
+          <el-input v-model="addForm.roleName" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述"  :label-width="'120px'">
+          <el-input v-model="addForm.roleDesc" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addRole">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -102,11 +117,17 @@ import { getRoles } from '@/api/user_index.js'
 import {
   delRightByRoleId,
   defaultProps,
-  ganrtRolesById
+  ganrtRolesById,
+  addRolesBy
 } from '@/api/role_index.js'
 export default {
   data () {
     return {
+      addForm: {
+        roleName: '',
+        roleDesc: ''
+      },
+      addDialogFormVisible: false,
       defaultProps: {
         label: 'authName',
         children: 'children'
@@ -118,6 +139,24 @@ export default {
     }
   },
   methods: {
+    // 添加角色
+    addRoles () {
+      this.addDialogFormVisible = true
+    },
+    addRole () {
+      addRolesBy(this.addForm)
+        .then(res => {
+          console.log(res)
+          if (res.data.meta.status === 201) {
+            this.$message.success(res.data.meta.msg)
+            this.addDialogFormVisible = false
+            this.init()
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     // 用户授权
     async grantRoles () {
       console.log(this.$refs.tree.getCheckedNodes())
