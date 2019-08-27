@@ -65,7 +65,12 @@
           </el-tooltip>
           <!-- 分配 -->
           <el-tooltip class="item" effect="dark" content="分配" placement="top-start">
-            <el-button type="warning" @click="eaitDefaultProps" plain icon="el-icon-share"></el-button>
+            <el-button
+              type="warning"
+              @click="eaitDefaultProps(scope.row)"
+              plain
+              icon="el-icon-share"
+            ></el-button>
           </el-tooltip>
           <!-- 删除 -->
           <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
@@ -77,22 +82,28 @@
     <!-- 树形结构 -->
     <el-dialog title="角色授权" :visible.sync="treeDialogFormVisible">
       <el-tree
-        :data="roleList"
+        :data="rolesList"
         show-checkbox
         node-key="id"
+        ref="tree"
         :default-expand-all="true"
+        :default-checked-keys="chkedArr"
         :props="defaultProps"
       ></el-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="treeDialogFormVisible = false">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button type="primary" @click="grantRoles">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { getRoles } from '@/api/user_index.js';
-import { delRightByRoleId, defaultProps } from '@/api/role_index.js';
+import { getRoles } from '@/api/user_index.js'
+import {
+  delRightByRoleId,
+  defaultProps,
+  ganrtRolesById
+} from '@/api/role_index.js'
 export default {
   data () {
     return {
@@ -101,10 +112,38 @@ export default {
         children: 'children'
       },
       treeDialogFormVisible: false,
-      roleList: []
+      roleList: [],
+      rolesList: [],
+      chkedArr: []
     }
   },
   methods: {
+    // 用户授权
+    async grantRoles () {
+      console.log(this.$refs.tree.getCheckedNodes())
+      let arr = this.$refs.tree.getCheckedNodes()
+      // 实现数组的拼接
+      let temp = []
+      for (var i = 0; i < arr.length; i++) {
+        temp.push(arr[i].id + ',' + arr[i].pid)
+      }
+      // console.log(temp)
+      // 拼接数组元素再转换为数组
+      temp = temp.join(',').split(',')
+      // console.log(temp)
+      // 去重
+      temp = [...new Set(temp)]
+      // console.log(temp)
+      let res = await ganrtRolesById(this.roleId, temp.join(','))
+
+      if (res.data.meta.status === 200) {
+        this.$message.success(res.data.meta.msg)
+        this.treeDialogFormVisible = false
+        this.init()
+      } else {
+        this.$message.success(res.data.meta.msg)
+      }
+    },
     delRight (row, rightId) {
       console.log(row)
       delRightByRoleId(row.id, rightId)
@@ -116,15 +155,35 @@ export default {
           console.log(err)
         })
     },
-    eaitDefaultProps () {
-      defaultProps('tree')
+    eaitDefaultProps (row) {
+      // 后期要使用到用户id
+      this.roleId = row.id
+      this.treeDialogFormVisible = true
+      defaultProps('tree').then(res => {
+        console.log(res)
+        if (res.data.meta.status === 200) {
+          this.rolesList = res.data.data
+          console.log(this.rolesList)
+        }
+      })
+      this.chkedArr.length = 0
+      row.children.forEach(first => {
+        if (first.children.length > 0) {
+          first.children.forEach(second => {
+            if (second.children.length > 0) {
+              second.children.forEach(three => {
+                this.chkedArr.push(three.id)
+              })
+            }
+          })
+        }
+      })
+    },
+    init () {
+      getRoles()
         .then(res => {
           console.log(res)
-          if (res.data.meta.status === 200) {
-            this.treeDialogFormVisible = true
-            this.roleList = res.data.data
-            console.log(this.roleList)
-          }
+          this.roleList = res.data.data
         })
         .catch(err => {
           console.log(err)
@@ -132,14 +191,7 @@ export default {
     }
   },
   mounted () {
-    getRoles()
-      .then(res => {
-        console.log(res)
-        this.roleList = res.data.data
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    this.init()
   }
 }
 </script>

@@ -21,3 +21,11 @@ export const defaultProps = (type) => {
     url: `rights/${type}`
   })
 }
+// 给用户授权
+export const ganrtRolesById = (roleId, rids) => {
+  return axios({
+    url: `roles/${roleId}/rights`,
+    method: 'post',
+    data: { rids }
+  })
+}
