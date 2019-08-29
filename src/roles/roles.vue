@@ -7,7 +7,7 @@
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 添加角色按钮 -->
-    <el-button type="success" @click="addRoles">添加角色</el-button>
+    <el-button type="success" @click="addDialogFormVisible =true">添加角色</el-button>
     <!-- 表格 -->
     <el-table :data="roleList" border style="width: 100%;margin-top:15px">
       <!-- 箭头 -->
@@ -74,7 +74,7 @@
           </el-tooltip>
           <!-- 删除 -->
           <el-tooltip class="item" effect="dark" content="删除" placement="top-start">
-            <el-button type="danger" plain icon="el-icon-delete"></el-button>
+            <el-button type="danger" plain icon="el-icon-delete" @click="delRoles(scope.row.id)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -97,11 +97,11 @@
     </el-dialog>
     <!-- 添加角色dialog -->
     <el-dialog title="添加角色" :visible.sync="addDialogFormVisible">
-      <el-form :model="addForm">
-        <el-form-item label="角色名称"  :label-width="'120px'">
+      <el-form :model="addForm" ref="addForms" :rules="rules">
+        <el-form-item label="角色名称" :label-width="'120px'" prop="roleName">
           <el-input v-model="addForm.roleName" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="角色描述"  :label-width="'120px'">
+        <el-form-item label="角色描述" :label-width="'120px'" prop="roleDesc">
           <el-input v-model="addForm.roleDesc" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -118,11 +118,16 @@ import {
   delRightByRoleId,
   defaultProps,
   ganrtRolesById,
-  addRolesBy
+  addRolesBy,
+  delRoles
 } from '@/api/role_index.js'
 export default {
   data () {
     return {
+      rules: {
+        roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
+        roleDesc: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
+      },
       addForm: {
         roleName: '',
         roleDesc: ''
@@ -139,10 +144,33 @@ export default {
     }
   },
   methods: {
-    // 添加角色
-    addRoles () {
-      this.addDialogFormVisible = true
+    // 删除角色
+    delRoles (id) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delRoles(id)
+          .then(res => {
+            console.log(res)
+            if (res.data.meta.status === 200) {
+              this.$message.success(res.data.meta.msg)
+              this.init()
+            }
+          })
+          .catch(() => {
+            this.$message({
+              type: 'error',
+              message: '删除失败'
+            })
+          })
+      })
+        .catch(() => {
+          this.$message.error('已取消删除')
+        })
     },
+    // 添加角色
     addRole () {
       addRolesBy(this.addForm)
         .then(res => {
@@ -151,6 +179,7 @@ export default {
             this.$message.success(res.data.meta.msg)
             this.addDialogFormVisible = false
             this.init()
+            this.$refs.addForms.resetFields()
           }
         })
         .catch(err => {

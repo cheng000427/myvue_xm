@@ -14,39 +14,18 @@
           @open="handleOpen"
           @close="handleClose"
         >
-          <el-submenu index="1">
+          <el-submenu :index="tiem.id+''" v-for="tiem in menusList" :key="tiem.id">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{tiem.authName}}</span>
             </template>
-            <el-menu-item index="/index/users-list">
-              <i class="el-icon-menu"></i>用户列表
+            <el-menu-item :index="'/index/'+sender.path" v-for="sender in tiem.children" :key="sender.id">
+              <template slot="title">
+              <i class="el-icon-menu"></i>
+              <span>{{sender.authName}}</span>
+            </template>
             </el-menu-item>
           </el-submenu>
-
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item index="/index/roles">
-              <i class="el-icon-menu"></i>角色列表
-            </el-menu-item>
-            <el-menu-item index="/index/right">
-              <i class="el-icon-menu"></i>权限列表
-            </el-menu-item>
-          </el-submenu>
-
-          <el-submenu index="3">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>导航三</span>
-            </template>
-            <el-menu-item index="3-1">
-              <i class="el-icon-menu"></i>选项3
-            </el-menu-item>
-          </el-submenu>
-
         </el-menu>
       </el-aside>
       <el-container>
@@ -65,7 +44,25 @@
   </div>
 </template>
 <script>
+import { getLeftMenus } from '@/api/right_index.js'
 export default {
+  data () {
+    return {
+      menusList: []
+    }
+  },
+  mounted () {
+    getLeftMenus()
+      .then(res => {
+        console.log(res)
+        if (res.data.meta.status === 200) {
+          this.menusList = res.data.data
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  },
   methods: {
     handleOpen (key, keyPath) {
       console.log(key, keyPath)
